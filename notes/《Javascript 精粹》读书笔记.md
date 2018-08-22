@@ -208,7 +208,137 @@ this.prototype = { constructor: this }
 
 2. 使用 `new` 操作符时
 
+假设对一个构造函数 `Foo` 进行 `new` 操作，相当于执行了这样的一个 `simulateNew` 函数:
 
+```Javascript
+function simulateNew(Foo, ...args) {
+  // 创建一个以 Foo.prototype 为原型的新对象
+  const that = Object.create(Foo.prototype)
+  
+  // 调用构造器，初始化对象的值
+  const other = Foo.apply(that, args)
+  
+  // 如果构造的返回值不是一个对象，就返回新创建的那个对象
+  return (typeof other === 'object' && other) || that
+}
+```
+
+3. 扩充一个函数构造器的原型
+
+```Javascript
+const Mammal = function(name) {
+  this.name = name
+}
+
+Mammal.prototype.get_name = function() {
+  return this.name
+}
+
+Mammal.prototype.says = function() {
+  return this.saying || ''
+}
+```
+
+4. 构造一个伪类来继承另一个类
+
+```Javascript
+const Cat = function(name) {
+  this.name = name
+  this.saying = 'meow'
+}
+
+// 替换 Cat.prototype 为一个 Mammal 的实例
+Cat.prototype = new Mammal()
+
+// 扩充新原型对象，添加 purr, get_name 方法
+Cat.prototype.purr = function(n) {
+  return Array(n).fill('r').join('-')
+}
+Cat.prototype.get_name = function() {
+  return `${this.name} says: My name is ${this.says()} ${this.name}`
+}
+
+const myCat = new Cat('Cinderella')
+myCat.says() // 'meow'
+myCat.purr(5) // 'r-r-r-r-r'
+myCat.get_name() // 'Cinderella says: My name is meow Cinderella'
+```
+
+现在我们有了这些行为像"类"的构造器函数，但是还存在一些问题，比如没有私有环境，所有属性都是公开的。并且无法访问到父类(super)里面被覆盖了的方法。
+
+还有一个更大的风险是，如果在调用构造函数时，忘记了使用 `new` 关键字，原型的方法中的 this 会指向全局变量，从而污染全局变量。更恼人的是，这种问题不会有编译警告，也不会有执行错误。为了避免这个问题，我们还约定构造函数的首字符必须大写，其它函数都不这么做，这样从书写上就能看出来是否不正确地使用了构造函数。
+
+在基于类的语言中，类继承是代码重用的唯一方式，但在 Javascript 中，还有更多更好的选择。
+
+> 差异化继承
+
+差异化继承，就是把上面步骤中 `new Mammal()` 步骤得到的对象，换成一个已经定义好了的对象作为新的类的原型，而不是需要的时候才 `new Mammal()` 出来。之后根据子类和原型对象的差异，去配置差异的部分。
+
+> 函数化
+
+函数化继承就是利用函数创造对象，利用函数 mutate 对象，而不是利用构造器来生成对象。它可以为我们带来更多的灵活性，也不需要使用 `new`，此外很重要地，它还给我们提供了实现私有变量和函数的能力。
+
+函数化地实现"继承"的步骤:
+
+1. 创建一个新对象
+2. 定义私有变量和方法
+3. 扩充此新对象，为其添加属性和方法
+4. 返回此新对象
+
+伪代码说明:
+
+```Javascript
+const constructor = function(spec, my) {
+  let 其它的私有变量
+  my = my || {}
+  
+  把共享的函数和变量添加到 my 中
+  
+  const that = 一个新对象
+  
+  为 that 添加属性和方法
+  
+  return that
+}
+```
+
+spec 对象包含了需要创建 that 对象的所有信息，my 用于在"继承连"中按需要共享信息。
+
+示例:
+
+```Javascript
+// 利用上述思路，先得到一个"父类" mamal
+const mammal = function(spec) {
+  const that = {}
+  
+  that.get_name = function() {
+    return spec.name
+  }
+  
+  that.says = function() {
+    return spec.saying || ''
+  }
+  
+  return that
+}
+
+// 根据"父类" mammal，创建一个"子类" cat
+const cat = function(spec) {
+  spec.saying = spec.saying || 'meow'
+  
+  const that = mammal(spec)
+  that.purr = function(n) {
+    return Array(n).fill('r').join('-')
+  }
+  that.get_name = function() {
+    return `${spec.name} says: My name is ${that.says()} ${spec.name}`
+  }
+  
+  return that
+}
+```
+
+这里我看完觉得书中说的算作继承有点牵强，但不失为一种可复用地创建对象的好方法。这里做的是先通过"父类"生成对象，然后在"子类"函数中去 mutate 此对象，最后返回此对象。其次，通过闭包来实现私有的变量和函数。
 
 注释说明
 ---
