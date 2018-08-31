@@ -9,6 +9,7 @@
 * [第三张 一等的函数](#section3)
 * [第四章 理解函数调用](#section4)
 * [第五章 闭包和作用域](#section5)
+* [第六章 Generator 和 Promise](#section6)
 
 <h2 id="section1">第一章 随处可见的 Javascript</h2>
 
@@ -120,7 +121,7 @@ console.timeEnd('timer1')
 
 普通函数(非箭头函数)调用的执行上下文中，存在两个隐式变量: `this` 和 `arguments`。
 
-`this` 具有函数的环境信息，`arguments` 具有函数执行时实际传递的参数信息。
+`this` 具有函数的环境信息(function context)，`arguments` 具有函数执行时实际传递的参数信息。
 
 > `arguments` 是函数 parameters 的别名
 
@@ -187,3 +188,41 @@ ninja1.feint()
 
 此时 `feints` 变量作为闭包访问的值，可以在对象内部保存对象的状态，从而实现了类似私有变量的功能。
 
+> 结合回调函数自我维持状态
+
+闭包可用于为回调函数维持状态，每次函数运行时，都利用闭包维持一个独立的状态:
+
+```Javascript
+function animate(id) {
+  const elem = document.getElementById(id)
+  let tick = 0;
+  const timer = setInterval(function(){
+    if (tick < 100) {
+      elem.style.left = elem.style.top = tick + "px"
+      tick++
+    } else {
+      clearInterval(timer)
+    }
+  }, 10)
+}
+```
+
+每当需要为一个元素执行 animate 时，只用传递 id 即可，如果不利用闭包这么做，那么 elem, tick, timer 都需要放到全局空间中，当需要为多个元素执行 animate 时，这种方案就会变得行不通了。闭包在这里就可以结合匿名回调函数，在每次执行 animate 时，单独维持一个状态。
+
+> 追踪函数的执行上下文
+
+执行上下文分为两种：全局执行上下文(global execution context)和函数执行上下文(function execution context)。
+
+函数调用的时候，会形成一个"执行上下文栈"(execution context stack)，也经常被叫作调用栈(call stack)。在栈底的是全局执行上下文，当有函数执行的时候，就会形成新的函数执行上下文，上一个执行上下文就会暂停，直到新的函数执行完毕，再恢复上一个暂停的执行上下文。
+
+<h2 id="section6">第六章 Generator 和 Promise</h2>
+
+> Generator
+
+我自己的感觉 *Generator* 相比于传统的函数的区别在于，generator 为外层代码提供了与函数内部交流的能力，可以读取函数的内部，可以在外部传递值控制 generator 的执行，比如原本需要用回调函数配合函数内部的值来做的事情，因为有了 generator，函数内部的值都可以一起提供给外部了(传统函数只能提供一个值)，就可以直接在外部使用值而不用回调函数。
+
+举个例子：假设我们需要遍历 DOM 树并对每个节点进行某种操作，在使用 generator 之前，可能的做法是提供一个函数从指定的 DOM 节点开始进行遍历，并传递一个回调函数进去，在每个 DOM 节点上执行操作，类似这样 `function traverseDOM(root, callback)`，但有了 generator 后，可以这样 `function* traverseDOM(root)`，利用 generator 得到所有节点后，进行 `for..of`，然后对每个节点单独进行操作。从语义和书写上来说，这样的代码都是更好读好懂的。
+
+> Promise
+
+Promise.race() API 中，第一个完成(fulfill 或者 reject)的 promise 决定这次的状态。
