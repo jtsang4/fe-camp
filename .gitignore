@@ -113,6 +113,7 @@ $RECYCLE.BIN/
 *.lnk
 
 .idea
+**/.idea
 yarn-error.log
 
 node_modules
