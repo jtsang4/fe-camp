@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
+import 'gestalt/dist/gestalt.css'
+import Navbar from './components/Navbar'
 import App from './components/App'
 import Signin from './components/Signin'
 import Signup from './components/Signup'
@@ -10,12 +11,15 @@ import * as serviceWorker from './serviceWorker'
 
 const Root = () => (
   <Router>
-    <Switch>
-      <Route component={App} exact path="/" />
-      <Route component={Signin} path="/signin" />
-      <Route component={Signup} path="/signup" />
-      <Route component={Checkout} path="/checkout" />
-    </Switch>
+    <React.Fragment>
+      <Navbar />
+      <Switch>
+        <Route component={App} exact path="/" />
+        <Route component={Signin} path="/signin" />
+        <Route component={Signup} path="/signup" />
+        <Route component={Checkout} path="/checkout" />
+      </Switch>
+    </React.Fragment>
   </Router>
 )
 
@@ -25,3 +29,7 @@ ReactDOM.render(<Root />, document.getElementById('root'))
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: http://bit.ly/CRA-PWA
 serviceWorker.unregister()
+
+if(module.hot) {
+  module.hot.accept()
+}
