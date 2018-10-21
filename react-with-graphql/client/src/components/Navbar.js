@@ -13,7 +13,7 @@ const Navbar = () => (
     shape="roundedBottom"
   >
     <NavLink activeClassName="active" to="/signin">
-      <Text size="x1" color="white">Sign In</Text>
+      <Text size="md" color="white">Sign In</Text>
     </NavLink>
     <NavLink activeClassName="active" exact to="/">
       <Box display="flex" alignItems="center">
@@ -31,7 +31,7 @@ const Navbar = () => (
       </Box>
     </NavLink>
     <NavLink activeClassName="active"  to="/signup">
-      <Text size="x1" color="white">Sign Up</Text>
+      <Text size="md" color="white">Sign Up</Text>
     </NavLink>
   </Box>
 )
