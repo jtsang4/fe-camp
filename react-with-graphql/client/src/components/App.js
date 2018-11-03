@@ -17,6 +17,14 @@ class App extends Component {
     this.setState({ searchTerm: event.value });
   }
 
+  filteredBrands = () => {
+    const { brands, searchTerm } = this.state;
+    return brands.filter(brand => {
+      return brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        brand.description.toLowerCase().includes(searchTerm.toLowerCase());
+    })
+  }
+
   async componentDidMount() {
     try {
       const response = await strapi.request('POST', '/graphql', {
@@ -51,13 +59,14 @@ class App extends Component {
           <SearchField
             id="searchField"
             accessibilityLabel="Brands Search Field"
+            value={this.state.searchTerm}
             onChange={this.handleChange}
             placeholder="Search Brands"
           />
           <Box margin={2}>
             <Icon
               icon="filter"
-              color={this.state.searchTerm ? 'orange' : 'grey'}
+              color={this.state.searchTerm ? 'orange' : 'gray'}
               size={20}
               accessibilityLabel="Filter"
             />
@@ -86,7 +95,7 @@ class App extends Component {
           display="flex"
           justifyContent="around"
         >
-          {this.state.brands.map(brand => (
+          {this.filteredBrands().map(brand => (
             <Box paddingY={4} margin={2} width={200} key={brand._id}>
               <Card
                 image={<Box height={200} width={200}>
