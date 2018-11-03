@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Box, Heading, Card, Image, Text, SearchField, Icon } from 'gestalt';
+import { Container, Box, Heading, Card, Image, Text, SearchField, Icon, Spinner } from 'gestalt';
 import { Link } from 'react-router-dom'
 import Strapi from 'strapi-sdk-javascript/build/main';
 import './App.css';
@@ -11,6 +11,7 @@ class App extends Component {
   state = {
     brands: [],
     searchTerm: '',
+    isLoadingBrands: true,
   }
 
   handleChange = (event) => {
@@ -45,9 +46,13 @@ class App extends Component {
         }
       });
 
-      this.setState({ brands: response.data.brands });
+      this.setState({
+        brands: response.data.brands,
+        isLoadingBrands: false,
+      });
     } catch (err) {
       console.error(err);
+      this.setState({ isLoadingBrands: false });
     }
   }
 
@@ -124,6 +129,7 @@ class App extends Component {
             </Box>
           ))}
         </Box>
+        <Spinner show={this.state.isLoadingBrands} accessibilityLabel="Loading Spinner"/>
       </Container>
     );
   }
