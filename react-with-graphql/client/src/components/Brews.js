@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Heading, Text, Image, Card, Button, Mask, IconButton } from 'gestalt';
 import Strapi from 'strapi-sdk-javascript/build/main';
 import { Link } from 'react-router-dom';
-import { calculatePrice } from '../utils';
+import { calculatePrice, getCart, setCart } from '../utils';
 
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
 const strapi = new Strapi(apiUrl);
@@ -22,17 +22,17 @@ class Brews extends React.Component {
         ...brew,
         quantity: 1,
       }];
-      this.setState({ cartItems: updatedCartItems });
+      this.setState({ cartItems: updatedCartItems }, () => setCart(updatedCartItems));
     } else {
       const updatedCartItems = [...this.state.cartItems];
       updatedCartItems[alreadyInCartIndex].quantity += 1;
-      this.setState({ cartItems: updatedCartItems });
+      this.setState({ cartItems: updatedCartItems }, () => setCart(updatedCartItems));
     }
   }
 
   removeItemFromCart = (brewId) => {
-    const updatedItems = this.state.cartItems.filter(item => item._id !== brewId);
-    this.setState({ cartItems: updatedItems });
+    const updatedCartItems = this.state.cartItems.filter(item => item._id !== brewId);
+    this.setState({ cartItems: updatedCartItems }, () => setCart(updatedCartItems));
   }
 
   async componentDidMount() {
@@ -61,6 +61,7 @@ class Brews extends React.Component {
       this.setState({
         brews: response.data.brand.brews,
         brand: response.data.brand.name,
+        cartItems: getCart(),
       })
     } catch (error) {
       console.error(error);
