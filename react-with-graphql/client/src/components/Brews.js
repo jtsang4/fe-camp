@@ -1,7 +1,8 @@
 import React from 'react';
-import { Box, Heading, Text, Image, Card, Button, Mask, IconButton } from 'gestalt'
+import { Box, Heading, Text, Image, Card, Button, Mask, IconButton } from 'gestalt';
 import Strapi from 'strapi-sdk-javascript/build/main';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { calculatePrice } from '../utils';
 
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
 const strapi = new Strapi(apiUrl);
@@ -13,7 +14,7 @@ class Brews extends React.Component {
     cartItems: [],
   }
 
-  addItem = (brew) => {
+  addItemToCart = (brew) => {
     const alreadyInCartIndex = this.state.cartItems.findIndex(item => item._id === brew._id);
 
     if (alreadyInCartIndex === -1) {
@@ -27,6 +28,11 @@ class Brews extends React.Component {
       updatedCartItems[alreadyInCartIndex].quantity += 1;
       this.setState({ cartItems: updatedCartItems });
     }
+  }
+
+  removeItemFromCart = (brewId) => {
+    const updatedItems = this.state.cartItems.filter(item => item._id !== brewId);
+    this.setState({ cartItems: updatedItems });
   }
 
   async componentDidMount() {
@@ -119,7 +125,7 @@ class Brews extends React.Component {
                       <Text color="orchid">${brew.price}</Text>
                       <Box marginTop={2}>
                         <Text bold size="xl">
-                          <Button color="blue" text="Add to Cart" onClick={() => this.addItem(brew)} />
+                          <Button color="blue" text="Add to Cart" onClick={() => this.addItemToCart(brew)} />
                         </Text>
                       </Box>
                     </Box>
@@ -140,7 +146,7 @@ class Brews extends React.Component {
               padding={2}
             >
               {/* User Cart Heading */}
-              <Heading align="center" size="md">Your Cart</Heading>
+              <Heading align="center" size="sm">Your Cart</Heading>
               <Text color="gray" italic>
                 {this.state.cartItems.length} items selected
               </Text>
@@ -151,7 +157,13 @@ class Brews extends React.Component {
                   <Text>
                     {cartItem.name} x {cartItem.quantity} - ${cartItem.quantity * cartItem.price.toFixed(2)}
                   </Text>
-                  <IconButton accessibilityLabel="Delete Item" icon="cancel" size="sm" iconColor="red" />
+                  <IconButton
+                    accessibilityLabel="Delete Item"
+                    icon="cancel"
+                    size="sm"
+                    iconColor="red"
+                    onClick={() => this.removeItemFromCart(cartItem._id)}
+                  />
                 </Box>
               ))}
 
@@ -166,9 +178,7 @@ class Brews extends React.Component {
                     <Text color="red">Please select some items</Text>
                   )}
                 </Box>
-                <Text size="lg">Total: ${
-                  this.state.cartItems.reduce((totalPrice, cartItem) => totalPrice + cartItem.price * cartItem.quantity, 0).toFixed(2)
-                }</Text>
+                <Text size="lg">Total: {calculatePrice(this.state.cartItems)}</Text>
                 <Text>
                   <Link to="/checkout">Checkout</Link>
                 </Text>
