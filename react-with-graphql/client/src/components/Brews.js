@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Heading, Text, Image, Card, Button, Mask } from 'gestalt'
+import { Box, Heading, Text, Image, Card, Button, Mask, IconButton } from 'gestalt'
 import Strapi from 'strapi-sdk-javascript/build/main';
 import { Link } from 'react-router-dom'
 
@@ -11,6 +11,22 @@ class Brews extends React.Component {
     brews: [],
     brand: '',
     cartItems: [],
+  }
+
+  addItem = (brew) => {
+    const alreadyInCartIndex = this.state.cartItems.findIndex(item => item._id === brew._id);
+
+    if (alreadyInCartIndex === -1) {
+      const updatedCartItems = [...this.state.cartItems, {
+        ...brew,
+        quantity: 1,
+      }];
+      this.setState({ cartItems: updatedCartItems });
+    } else {
+      const updatedCartItems = [...this.state.cartItems];
+      updatedCartItems[alreadyInCartIndex].quantity += 1;
+      this.setState({ cartItems: updatedCartItems });
+    }
   }
 
   async componentDidMount() {
@@ -103,7 +119,7 @@ class Brews extends React.Component {
                       <Text color="orchid">${brew.price}</Text>
                       <Box marginTop={2}>
                         <Text bold size="xl">
-                          <Button color="blue" text="Add to Cart" />
+                          <Button color="blue" text="Add to Cart" onClick={() => this.addItem(brew)} />
                         </Text>
                       </Box>
                     </Box>
@@ -130,6 +146,15 @@ class Brews extends React.Component {
               </Text>
 
               {/* Cart Items */}
+              {this.state.cartItems.map((cartItem) => (
+                <Box key={cartItem._id} display="flex" alignItems="center">
+                  <Text>
+                    {cartItem.name} x {cartItem.quantity} - ${cartItem.quantity * cartItem.price.toFixed(2)}
+                  </Text>
+                  <IconButton accessibilityLabel="Delete Item" icon="cancel" size="sm" iconColor="red" />
+                </Box>
+              ))}
+
               <Box
                 display="flex"
                 alignItems="center"
@@ -141,7 +166,9 @@ class Brews extends React.Component {
                     <Text color="red">Please select some items</Text>
                   )}
                 </Box>
-                <Text size="lg">Total: ${this.state.cartItems.reduce((totalPrice, cartItem) => totalPrice + cartItem.price, 0)}</Text>
+                <Text size="lg">Total: ${
+                  this.state.cartItems.reduce((totalPrice, cartItem) => totalPrice + cartItem.price * cartItem.quantity, 0).toFixed(2)
+                }</Text>
                 <Text>
                   <Link to="/checkout">Checkout</Link>
                 </Text>
