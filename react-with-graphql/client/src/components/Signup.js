@@ -1,6 +1,8 @@
 import React from 'react';
 import { Container, Box, Button, Heading, Text, TextField } from 'gestalt';
 import ToastMessage from './ToastMessage';
+import strapi from '../requests';
+import { setToken } from '../utils'
 
 class Signup extends React.Component {
   state = {
@@ -9,9 +11,10 @@ class Signup extends React.Component {
     password: '',
     toast: false,
     toastMessage: '',
+    loading: false,
   }
 
-  isFormInvalid({ username, email, password }) {
+  static isFormInvalid({ username, email, password }) {
     return !username || !email || !password;
   }
 
@@ -20,24 +23,35 @@ class Signup extends React.Component {
     setTimeout(() => this.setState({ toast: false, toastMessage }), 5000);
   }
 
+  redirectUser(path) {
+    this.props.history.push(path);
+  }
+
   handleChange = ({ event, value }) => {
     event.persist();
     this.setState({ [event.target.name]: value });
   }
 
-  handleSubmit = (event) => {
+  handleSubmit = async (event) => {
     event.preventDefault();
 
-    if(this.isFormInvalid(this.state)) {
+    const { username, email, password } = this.state;
+
+    if(Signup.isFormInvalid(this.state)) {
       this.showToast('Fill in all fields');
       return;
     }
-    console.log('submitted');
+
     // Sign up user
     try {
-
+      this.setState({ loading: true });
+      const response = await strapi.register(username, email, password);
+      this.setState({ loading: false });
+      setToken(response.jwt);
+      this.redirectUser('/');
     } catch (err) {
-      console.error(err);
+      this.setState({ loading: false });
+      this.showToast(err.message);
     }
   }
 
@@ -103,6 +117,7 @@ class Signup extends React.Component {
               color="blue"
               type="submit"
               text="Submit"
+              disabled={this.state.loading}
             />
           </form>
         </Box>

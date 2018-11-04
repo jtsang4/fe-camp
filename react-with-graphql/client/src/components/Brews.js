@@ -1,11 +1,8 @@
 import React from 'react';
 import { Box, Heading, Text, Image, Card, Button, Mask, IconButton } from 'gestalt';
-import Strapi from 'strapi-sdk-javascript/build/main';
 import { Link } from 'react-router-dom';
 import { calculatePrice, getCart, setCart } from '../utils';
-
-const apiUrl = process.env.API_URL || 'http://localhost:1337';
-const strapi = new Strapi(apiUrl);
+import strapi, { apiUrl } from '../requests';
 
 class Brews extends React.Component {
   state = {

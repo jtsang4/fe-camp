@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 import { Container, Box, Heading, Card, Image, Text, SearchField, Icon, Spinner } from 'gestalt';
 import { Link } from 'react-router-dom'
-import Strapi from 'strapi-sdk-javascript/build/main';
+import strapi, { apiUrl } from '../requests';
 import './App.css';
-
-const apiUrl = process.env.API_URL || 'http://localhost:1337';
-const strapi = new Strapi(apiUrl);
 
 class App extends Component {
   state = {
