@@ -8,9 +8,27 @@ class Signup extends React.Component {
     password: '',
   }
 
+  isFormValid({ username, email, password }) {
+    return username && email && password;
+  }
+
   handleChange = ({ event, value }) => {
     event.persist();
     this.setState({ [event.target.name]: value });
+  }
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+
+    if(this.isFormValid(this.state)) {
+      console.log('submitted');
+      // Sign up user
+      try {
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
   }
 
   render() {
@@ -35,6 +53,7 @@ class Signup extends React.Component {
               textAlign: 'center',
               maxWidth: 450,
             }}
+            onSubmit={this.handleSubmit}
           >
             <Box
               marginTop={2}
