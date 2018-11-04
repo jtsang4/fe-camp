@@ -1,6 +1,7 @@
 import React from 'react';
-import { Box, Heading, Text, Image, Card, Button } from 'gestalt'
+import { Box, Heading, Text, Image, Card, Button, Mask } from 'gestalt'
 import Strapi from 'strapi-sdk-javascript/build/main';
+import { Link } from 'react-router-dom'
 
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
 const strapi = new Strapi(apiUrl);
@@ -9,6 +10,7 @@ class Brews extends React.Component {
   state = {
     brews: [],
     brand: '',
+    cartItems: [],
   }
 
   async componentDidMount() {
@@ -51,6 +53,11 @@ class Brews extends React.Component {
         display="flex"
         justifyContent="center"
         alignItems="start"
+        dangerouslySetInlineStyle={{
+          __style: {
+            flexWrap: 'wrap-reverse'
+          }
+        }}
       >
         {/* Brews Section */}
         <Box display="flex" direction="column" alignItems="center">
@@ -105,6 +112,42 @@ class Brews extends React.Component {
               )
             })}
           </Box>
+        </Box>
+
+        {/* User Cart */}
+        <Box alignSelf="end" marginTop={2} marginLeft={8}>
+          <Mask shape="rounded" wash>
+            <Box
+              display="flex"
+              direction="column"
+              alignItems="center"
+              padding={2}
+            >
+              {/* User Cart Heading */}
+              <Heading align="center" size="md">Your Cart</Heading>
+              <Text color="gray" italic>
+                {this.state.cartItems.length} items selected
+              </Text>
+
+              {/* Cart Items */}
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                direction="column"
+              >
+                <Box margin={2}>
+                  {this.state.cartItems.length === 0 && (
+                    <Text color="red">Please select some items</Text>
+                  )}
+                </Box>
+                <Text size="lg">Total: ${this.state.cartItems.reduce((totalPrice, cartItem) => totalPrice + cartItem.price, 0)}</Text>
+                <Text>
+                  <Link to="/checkout">Checkout</Link>
+                </Text>
+              </Box>
+            </Box>
+          </Mask>
         </Box>
       </Box>
     );
