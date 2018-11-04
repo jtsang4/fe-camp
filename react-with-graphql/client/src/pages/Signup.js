@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container, Box, Button, Heading, Text, TextField } from 'gestalt';
-import ToastMessage from './ToastMessage';
-import strapi from '../requests';
-import { setToken } from '../utils'
+import ToastMessage from '../components/ToastMessage';
+import strapi from '../requests/index';
+import { setToken } from '../utils/index'
 
 class Signup extends React.Component {
   state = {

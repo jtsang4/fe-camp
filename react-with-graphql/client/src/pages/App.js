@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Container, Box, Heading, Card, Image, Text, SearchField, Icon, Spinner } from 'gestalt';
 import { Link } from 'react-router-dom'
-import strapi, { apiUrl } from '../requests';
+import strapi, { apiUrl } from '../requests/index';
 import './App.css';
 
 class App extends Component {

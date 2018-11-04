@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Heading, Text, Image, Card, Button, Mask, IconButton } from 'gestalt';
 import { Link } from 'react-router-dom';
-import { calculatePrice, getCart, setCart } from '../utils';
-import strapi, { apiUrl } from '../requests';
+import { calculatePrice, getCart, setCart } from '../utils/index';
+import strapi, { apiUrl } from '../requests/index';
 
 class Brews extends React.Component {
   state = {
