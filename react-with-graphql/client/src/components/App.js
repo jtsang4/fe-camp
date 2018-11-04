@@ -18,8 +18,7 @@ class App extends Component {
     this.setState({ searchTerm: event.value });
   }
 
-  filteredBrands = () => {
-    const { brands, searchTerm } = this.state;
+  filteredBrands = (brands, searchTerm) => {
     return brands.filter(brand => {
       return brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         brand.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -100,7 +99,7 @@ class App extends Component {
           display="flex"
           justifyContent="around"
         >
-          {this.filteredBrands().map(brand => (
+          {this.filteredBrands(this.state.brands, this.state.searchTerm).map(brand => (
             <Box paddingY={4} margin={2} width={200} key={brand._id}>
               <Card
                 image={<Box height={200} width={200}>
